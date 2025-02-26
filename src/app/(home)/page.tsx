@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex items-center gap-3 p-3">
+    <div>
         <Image 
             src={"/logo.svg"}
             alt="logo"
