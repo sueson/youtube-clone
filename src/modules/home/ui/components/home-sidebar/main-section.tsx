@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import { FlameIcon, HomeIcon, PlaySquareIcon } from "lucide-react";
 import Link from "next/link";
+import { useAuth, useClerk } from "@clerk/nextjs";
 
 
 const items = [
@@ -34,6 +35,9 @@ const items = [
 
 // A sidebar content
 export const MainSection = () => {
+    const { isSignedIn } = useAuth();
+    const clerk = useClerk();
+
     return (
         <SidebarGroup>
             <SidebarGroupContent>
@@ -45,7 +49,13 @@ export const MainSection = () => {
                                 asChild
                                 // Change based on current pathname
                                 isActive={false}
-                                onClick={() => {}}
+                                // if user not signed in and auth is true clerk should open the sign-in modal
+                                onClick={(e) => {
+                                    if(!isSignedIn && item.auth) {
+                                        e.preventDefault();
+                                        return clerk.openSignIn();
+                                    }
+                                }}
                             >
                                 <Link href={item.url} className="flex items-center gap-4">
                                     <item.icon />
