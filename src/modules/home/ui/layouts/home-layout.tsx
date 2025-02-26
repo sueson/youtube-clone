@@ -7,6 +7,7 @@ interface HomeLayoutProps {
 };
 
 
+// A specific layout for home
 export const HomeLayout = ({children}: HomeLayoutProps) => {
     return (
         <SidebarProvider>

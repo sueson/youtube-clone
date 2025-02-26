@@ -32,6 +32,7 @@ const items = [
 ]
 
 
+// A sidebar content
 export const MainSection = () => {
     return (
         <SidebarGroup>
@@ -42,6 +43,7 @@ export const MainSection = () => {
                             <SidebarMenuButton
                                 tooltip={item.title}
                                 asChild
+                                // Change based on current pathname
                                 isActive={false}
                                 onClick={() => {}}
                             >
