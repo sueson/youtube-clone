@@ -1,8 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 
+// This protects all routes under studio
 const isProtectedRoute = createRouteMatcher([
-    "/protected(.*)"
+    "/studio(.*)"
 ]);
 
 // Protect routes
