@@ -1,0 +1,5 @@
+// Configures Visual Studio Code to use the TypeScript version from the workspace's node_modules directory and enables prompts to use this version.
+{
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true
+}
