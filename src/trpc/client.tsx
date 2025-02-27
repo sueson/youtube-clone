@@ -42,6 +42,12 @@ export function TRPCProvider(
         httpBatchLink({
           transformer: superjson, //<-- if you use a data transformer
           url: getUrl(),
+          // This function adds a custom header to TRPC requests to indicate that they are coming from a Next.js. This helps to understand where requests are coming from, which is useful for debugging and logging.
+          async headers() {
+            const headers = new Headers();
+            headers.set("x-trpc-source", "nextjs-react");
+            return headers;
+          }
           }),
       ],
     }),
