@@ -7,4 +7,13 @@ export const users = pgTable("users", {
     imageUrl: text("image_url").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull()
-}, (t) => [uniqueIndex("clerk_id_idx").on(t.clerkId)]);  //idx - index, and this arrow method used to find the user fast
+}, (t) => [uniqueIndex("clerk_id_idx").on(t.clerkId)]);  //idx(index) - using index to query by clerk id, and this arrow method used to find the user fast
+
+
+export const categories = pgTable("categories", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull().unique(),
+    description: text("description"),  //optiional
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull()
+}, (t) => [uniqueIndex("name_idx").on(t.name)]);
