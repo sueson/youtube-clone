@@ -10,6 +10,7 @@ interface InfiniteScrollProps {
 };
 
 
+// Infinte loading controller
 export const InfiniteScroll = ({ 
     isManual = false,
     hasNextPage,
