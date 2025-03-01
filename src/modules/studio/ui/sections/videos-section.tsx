@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { VideoThumbnail } from "@/modules/videos/ui/components/video-thumbnail";
+import { snakeCaseToTitle } from "@/lib/utils";
+import { format } from "date-fns";
 
 
 export const VideosSection = () => {
@@ -65,16 +67,28 @@ const VideosSectionSuspense = () => {
                                                         duration={video.duration || 0}
                                                     />
                                                 </div>
+
+                                                <div className="flex flex-col overflow-hidden gap-y-1">
+                                                    <span className="text-sm line-clamp-1">
+                                                        {video.title}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground line-clamp-1">
+                                                        {video.description || "no description"}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </TableCell>
                                         <TableCell>
                                             visibility
                                         </TableCell>
                                         <TableCell>
-                                            status
+                                            <div className="flex items-center">
+                                                {/* mux_status default changes from "video_ready" "video_error" => "Video ready"*/}
+                                                {snakeCaseToTitle(video.muxStatus || "error")}
+                                            </div>
                                         </TableCell>
-                                        <TableCell>
-                                            date
+                                        <TableCell className="text-sm truncate">
+                                            {format(new Date(video.createdAt), "d MMM yyy")}
                                         </TableCell>
                                         <TableCell>
                                             views

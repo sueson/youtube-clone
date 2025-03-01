@@ -27,6 +27,7 @@ export const VideoThumbnail = ({
                 />
                 {/* activate gif while hover */}
                 <Image 
+                    unoptimized={!!previewUrl}
                     src={previewUrl ?? "/placeholder.svg"}
                     alt={title}
                     fill

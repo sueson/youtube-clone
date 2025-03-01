@@ -14,3 +14,9 @@ export const formatDuration = (duration: number) => {
   // returns like e.g: 00:10
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
+
+
+// For video status
+export const snakeCaseToTitle = (str: string) => {
+  return str.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}

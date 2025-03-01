@@ -1,5 +1,7 @@
-import { integer, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+
 
 export const users = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -9,6 +11,7 @@ export const users = pgTable("users", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull()
 }, (t) => [uniqueIndex("clerk_id_idx").on(t.clerkId)]);  //idx(index) - using index to query by clerk id, and this arrow method used to find the user fast
+
 
 // This code establishes the relationship between the 'users' table and the 'videos' table.
 // It specifies that each user can have multiple videos associated with them. This relationship 
@@ -32,6 +35,12 @@ export const categoryRelations = relations(users, ({ many }) => ({
 }));
 
 
+export const videoVisibility = pgEnum("video_visibility", [
+    "private",
+    "public"
+]);
+
+
 export const videos = pgTable("videos", {
     id: uuid("id").primaryKey().defaultRandom(),
     title: text("title").notNull(),
@@ -44,7 +53,8 @@ export const videos = pgTable("videos", {
     muxTrackStatus: text("mux_track_status"),
     thumbnailUrl: text("thumbnail_url"),
     previewUrl: text("preview_url"),
-    duration: integer("duration"),
+    duration: integer("duration").default(0).notNull(),
+    visibility: videoVisibility("visibility").default("private").notNull(),
     userId: uuid("user_id").references(() => users.id, {
         // if user id deleted all thier videos deleted too
         onDelete: "cascade"
