@@ -62,6 +62,40 @@ export const POST = async (request: Request) => {
                 .where(eq(videos.muxUploadId, data.upload_id));
         break;
         }
+        case "video.asset.ready" : {
+            const data = payload.data as VideoAssetReadyWebhookEvent["data"];
+            const playbackId = data.playback_ids?.[0].id;
+
+            if(!data.upload_id) {
+                return new Response("Missing uploadId", { status: 400 });
+            }
+
+            if(!playbackId) {
+                return new Response("Missing playbackId", { status: 400 });
+            }
+
+            // create thumbnail using mux and playbackId
+            const thumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
+
+            // create a gif for the video
+            const previewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
+
+            // create video duration
+            const duration = data.duration ? Math.round(data.duration * 1000) : 0;   // 1000 for because it uses miliunits
+
+            await db
+                .update(videos)
+                .set({
+                    muxStatus: data.status,  // This time the status will be ready
+                    muxPlaybackId: playbackId,
+                    muxAssetId: data.id,
+                    thumbnailUrl,
+                    previewUrl,
+                    duration
+                })
+                .where(eq(videos.muxUploadId, data.upload_id));
+        break;
+        }
     }
 
     return new Response("Webhook received", { status: 200 });  // Webhook always expect a sucess request at end
