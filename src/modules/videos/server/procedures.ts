@@ -27,7 +27,7 @@ export const videosRouter = createTRPCRouter({
                 throw new TRPCError({ code: "NOT_FOUND" });
             };
 
-            //  Delete the old thumbnail using key when restore hits, beofre hits the updateVideo
+            //  Delete the new thumbnail using key when restore hits, beofre hits the updateVideo
             if(existingVideo.thumbnailKey) {
                 const utapi = new UTApi();
     
@@ -48,12 +48,24 @@ export const videosRouter = createTRPCRouter({
                 throw new TRPCError({ code: "BAD_REQUEST" });
             };
 
-            const thumbnailUrl = `https://image.mux.com/${existingVideo.muxPlaybackId}/thumbnail.jpg`;
+            // For generate thumbnail
+            const tempThumbnailUrl = `https://image.mux.com/${existingVideo.muxPlaybackId}/thumbnail.jpg`;
+
+            // To store our files into uploadThing
+            const utapi = new UTApi();
+            const uploadedThumbnail = await utapi.uploadFilesFromUrl(tempThumbnailUrl);
+
+            if(!uploadedThumbnail.data) {
+                throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+            };
+
+            const { key: thumbnailKey, ufsUrl: thumbnailUrl } = uploadedThumbnail.data;
 
             const [updatedVideo] = await db
                 .update(videos)
                 .set({
-                    thumbnailUrl
+                    thumbnailUrl,
+                    thumbnailKey
                 })
                 .where(and(
                     eq(videos.id, input.id),

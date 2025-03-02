@@ -223,7 +223,7 @@ const FormSectionSuspense = ({ videoId } : FormSectionProps) => {
                                         <FormControl>
                                             <div className="p-0.5 border border-dashed border-neutral-400 relative h-[84px] w-[153px] group">
                                                 <Image 
-                                                    src={video.thumbnailUrl ?? THUMBNAIL_FALLBACK}
+                                                    src={video.thumbnailUrl || THUMBNAIL_FALLBACK}
                                                     alt="Thumbnail"
                                                     fill
                                                     className="object-cover"

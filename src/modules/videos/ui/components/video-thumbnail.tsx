@@ -21,7 +21,7 @@ export const VideoThumbnail = ({
             {/* Thumbnail wrapper */}
             <div className="relative w-full overflow-hidden rounded-xl aspect-video">
                 <Image 
-                    src={imageUrl ?? THUMBNAIL_FALLBACK}
+                    src={imageUrl || THUMBNAIL_FALLBACK}
                     alt={title}
                     fill
                     className="w-full h-full object-cover group-hover:opacity-0"
@@ -29,7 +29,7 @@ export const VideoThumbnail = ({
                 {/* activate gif while hover */}
                 <Image 
                     unoptimized={!!previewUrl}
-                    src={previewUrl ?? THUMBNAIL_FALLBACK}
+                    src={previewUrl || THUMBNAIL_FALLBACK}
                     alt={title}
                     fill
                     className="w-full h-full object-cover opacity-0 group-hover:opacity-100"

@@ -10,6 +10,7 @@ import {
 import { mux } from "@/lib/mux";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
+import { UTApi } from "uploadthing/server";
 
 
 const SIGNING_SECRET = process.env.MUX_WEBHOOK_SECRET!;
@@ -78,10 +79,24 @@ export const POST = async (request: Request) => {
             }
 
             // create thumbnail using mux and playbackId
-            const thumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
+            const tempThumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
 
             // create a gif for the video
-            const previewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
+            const tempPreviewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
+
+            // To store in the uploadThing file storage
+            const utapi = new UTApi();
+            const [uploadedThumbnail, uploadedPreview] = await utapi.uploadFilesFromUrl([
+                tempThumbnailUrl,
+                tempPreviewUrl
+            ]);
+
+            if(!uploadedThumbnail.data || !uploadedPreview.data) {
+                return new Response("failed to upload thumbnail or preview", { status: 500 });
+            }
+
+            const {key: thumbnailKey, ufsUrl: thumbnailUrl} = uploadedThumbnail.data;
+            const {key: previewKey, ufsUrl: previewUrl} = uploadedPreview.data;
 
             // create video duration
             const duration = data.duration ? Math.round(data.duration * 1000) : 0;   // 1000 for because it uses miliunits
@@ -93,7 +108,9 @@ export const POST = async (request: Request) => {
                     muxPlaybackId: playbackId,
                     muxAssetId: data.id,
                     thumbnailUrl,
+                    thumbnailKey,
                     previewUrl,
+                    previewKey,
                     duration
                 })
                 .where(eq(videos.muxUploadId, data.upload_id));

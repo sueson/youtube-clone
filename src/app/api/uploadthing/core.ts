@@ -47,7 +47,7 @@ export const ourFileRouter = {
 
           if(!existingVideo) throw new UploadThingError("Not found");
 
-        //  Delete the old thumbnail using key when upload new file, beofre hits the onUploadComplete
+        //  Delete the new thumbnail using key when upload new file, beofre hits the onUploadComplete
           if(existingVideo.thumbnailKey) {
             const utapi = new UTApi();
 
