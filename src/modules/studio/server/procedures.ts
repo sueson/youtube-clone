@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { videos } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { TRPCError } from "@trpc/server";
 import { eq, and, or, lt, desc } from "drizzle-orm";
 import { z } from "zod";
 
@@ -11,6 +12,28 @@ import { z } from "zod";
 // It retrieves videos ordered by the last updated date and provides a next cursor if more videos are available.
 export const studioRouter = createTRPCRouter({
     // only authorized users can access their video
+    // To get a specific video id when cleck the video
+    getOne: protectedProcedure
+        .input(z.object({ id: z.string().uuid() }))
+        .query(async ({ ctx, input }) => {
+            const {id: userId} = ctx.user;  // user from database
+            const { id } = input;
+
+            const [video] = await db
+                .select()
+                .from(videos)
+                .where(and(
+                    eq(videos.id, id),
+                    eq(videos.userId, userId)
+                ));
+
+                if(!video) {
+                    throw new TRPCError({ code: "NOT_FOUND" });
+                };
+
+            return video;
+        }),
+    // To get all videos which uploaded by author
     getMany: protectedProcedure
     .input(
         z.object({
