@@ -4,6 +4,7 @@ import { mux } from "@/lib/mux";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
+import { UTApi } from "uploadthing/server";
 import { z } from "zod";
 
 // handles video crud operation
@@ -14,7 +15,7 @@ export const videosRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             const { id: userId } = ctx.user;
 
-            const [existingVideos] = await db
+            const [existingVideo] = await db
                 .select()
                 .from(videos)
                 .where(and(
@@ -22,15 +23,32 @@ export const videosRouter = createTRPCRouter({
                     eq(videos.userId, userId)
                 ));
 
-            if(!existingVideos) {
+            if(!existingVideo) {
                 throw new TRPCError({ code: "NOT_FOUND" });
             };
 
-            if(!existingVideos.muxPlaybackId) {
+            //  Delete the old thumbnail using key when restore hits, beofre hits the updateVideo
+            if(existingVideo.thumbnailKey) {
+                const utapi = new UTApi();
+    
+                await utapi.deleteFiles(existingVideo.thumbnailKey);
+                await db
+                  .update(videos)
+                  .set({
+                    thumbnailKey: null,
+                    thumbnailUrl: null
+                  })
+                  .where(and(
+                    eq(videos.id, input.id),
+                    eq(videos.userId, userId)
+                  ));
+              }
+
+            if(!existingVideo.muxPlaybackId) {
                 throw new TRPCError({ code: "BAD_REQUEST" });
             };
 
-            const thumbnailUrl = `https://image.mux.com/${existingVideos.muxPlaybackId}/thumbnail.jpg`;
+            const thumbnailUrl = `https://image.mux.com/${existingVideo.muxPlaybackId}/thumbnail.jpg`;
 
             const [updatedVideo] = await db
                 .update(videos)
