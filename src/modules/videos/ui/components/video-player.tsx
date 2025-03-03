@@ -22,6 +22,7 @@ export const VideoPlayer = ({
     if(!playbackId) return null;
 
     return (
+        // Plays the video
         <MuxPlayer 
             playbackId={playbackId}
             poster={thumbnailUrl || THUMBNAIL_FALLBACK}
