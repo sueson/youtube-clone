@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { comments, users } from "@/db/schema";
+import { commentReactions, comments, users } from "@/db/schema";
 import { baseProcedure, createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, getTableColumns, lt, or } from "drizzle-orm";
@@ -73,6 +73,20 @@ export const commentsRouter = createTRPCRouter({
                 .select({
                     ...getTableColumns(comments),
                     user: users,
+                    likeCount: db.$count(
+                        commentReactions,
+                        and(
+                            eq(commentReactions.type, "like"),
+                            eq(commentReactions.commentId, comments.id)
+                        )
+                    ),
+                    dislikeCount: db.$count(
+                        commentReactions,
+                        and(
+                            eq(commentReactions.type, "dislike"),
+                            eq(commentReactions.commentId, comments.id)
+                        )
+                    ),
                 })
                 .from(comments)
                 .where(
