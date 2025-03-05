@@ -64,7 +64,7 @@ export const subscriptionRelations = relations(subscriptions, ({ one }) => ({
 export const categories = pgTable("categories", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull().unique(),
-    description: text("description"),  //optiional
+    description: text("description"),  //optional
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull()
 }, (t) => [uniqueIndex("name_idx").on(t.name)]);
@@ -97,7 +97,7 @@ export const videos = pgTable("videos", {
     duration: integer("duration").default(0).notNull(),
     visibility: videoVisibility("visibility").default("private").notNull(),
     userId: uuid("user_id").references(() => users.id, {
-        // if user id deleted all thier videos deleted too
+        // if user id deleted all their videos deleted too
         onDelete: "cascade"
     }).notNull(),
     categoryId: uuid("category_id").references(() => categories.id, {
