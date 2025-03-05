@@ -12,7 +12,7 @@ import { z } from "zod";
 // It retrieves videos ordered by the last updated date and provides a next cursor if more videos are available.
 export const studioRouter = createTRPCRouter({
     // only authorized users can access their video
-    // To get a specific video id when cleck the video
+    // To get a specific video id when click the video
     getOne: protectedProcedure
         .input(z.object({ id: z.string().uuid() }))
         .query(async ({ ctx, input }) => {
@@ -56,7 +56,7 @@ export const studioRouter = createTRPCRouter({
                 eq(videos.userId, userId),
                 cursor
                     ? or(
-                        lt(videos.updatedAt, cursor.updatedAt),  // lt - larger
+                        lt(videos.updatedAt, cursor.updatedAt),  // lt - larger than
                         and(
                             eq(videos.updatedAt, cursor.updatedAt),
                             lt(videos.id, cursor.id)
