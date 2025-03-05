@@ -69,7 +69,7 @@ export const VideoReactions = ({
                 variant="secondary"
                 className="rounded-l-none rounded-r-full pl-3"
             >
-                <ThumbsDownIcon className={cn("size-5", viewerReaction !== "dislike" && "fill-black")}/>
+                <ThumbsDownIcon className={cn("size-5", viewerReaction === "dislike" && "fill-black")}/>
                 {dislikes}
             </Button>
         </div>
