@@ -69,8 +69,9 @@ export const CommentItem = ({ comment } : CommentItemProps) => {
                     </p>
                     {/* Reactions */}
                 </div>
-
-                <DropdownMenu>
+                
+                {/* making modal -> false disappear the border */}
+                <DropdownMenu modal={false}>  
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="ghost"
