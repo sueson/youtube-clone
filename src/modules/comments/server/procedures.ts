@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { comments, users } from "@/db/schema";
 import { baseProcedure, createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { and, desc, eq, getTableColumns, lt, or } from "drizzle-orm";
+import { and, count, desc, eq, getTableColumns, lt, or } from "drizzle-orm";
 import { z } from "zod";
 
 
@@ -37,7 +37,15 @@ export const commentsRouter = createTRPCRouter({
         .query(async ({ input }) => {
             const { videoId, cursor, limit } = input;
 
-            const data = await db
+            const [totalData, data] = await Promise.all([
+            db
+                .select({
+                    count: count(),
+                })
+                .from(comments)
+                .where(eq(comments.videoId, videoId)),
+
+            db
                 .select({
                     ...getTableColumns(comments),
                     user: users,
@@ -60,6 +68,7 @@ export const commentsRouter = createTRPCRouter({
                 .innerJoin(users, eq(comments.userId, users.id))
                 .orderBy(desc(comments.updatedAt), desc(comments.id))
                 .limit(limit + 1)
+            ]);
 
             const hasMore = data.length > limit;
             // Remove the last item if there is more data
@@ -74,6 +83,7 @@ export const commentsRouter = createTRPCRouter({
                 : null;
 
             return {
+                totalCount: totalData[0].count,
                 items,
                 nextCursor
             };
