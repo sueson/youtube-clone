@@ -217,6 +217,6 @@ export const commentRelations = relations(comments, ({ one }) => ({
 }));
 
 
-export const commentsInsertSchema = createInsertSchema(comments);
-export const commentsUpdateSchema = createUpdateSchema(comments);
-export const commentsSelectSchema = createSelectSchema(comments);
+export const commentInsertSchema = createInsertSchema(comments);
+export const commentUpdateSchema = createUpdateSchema(comments);
+export const commentSelectSchema = createSelectSchema(comments);
