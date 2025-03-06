@@ -3,6 +3,9 @@ import { StudioView } from "@/modules/studio/ui/views/studio-view";
 import { HydrateClient, trpc } from "@/trpc/server";
 
 
+// Because this is a dynamic page not a static page
+export const dynamic = "force-dynamic";
+
 
 const Page = async () => {
     // get many used to load many data so prefetchInfinite would be used
