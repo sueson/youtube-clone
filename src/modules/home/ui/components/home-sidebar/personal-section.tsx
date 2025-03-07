@@ -11,6 +11,7 @@ import {
 import { HistoryIcon, ListVideoIcon, ThumbsUpIcon } from "lucide-react";
 import Link from "next/link";
 import { useAuth, useClerk } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
 
 
 const items = [
@@ -42,6 +43,7 @@ const items = [
 export const PersonalSection = () => {
     const { isSignedIn } = useAuth();
     const clerk = useClerk();
+    const pathname = usePathname();
 
     return (
         <SidebarGroup>
@@ -55,8 +57,8 @@ export const PersonalSection = () => {
                             <SidebarMenuButton
                                 tooltip={item.title}
                                 asChild
-                                // Change based on current pathname
-                                isActive={false}
+                                // Change active bar based on current pathname
+                                isActive={pathname === item.url}
                                 // if user not signed in and auth is true clerk should open the sign-in modal
                                 onClick={(e) => {
                                     if(!isSignedIn && item.auth) {
