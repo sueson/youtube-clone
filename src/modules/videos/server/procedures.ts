@@ -10,7 +10,7 @@ import { z } from "zod";
 
 // handles video crud operation / api
 export const videosRouter = createTRPCRouter({
-    getTrending: baseProcedure
+    getManyTrending: baseProcedure
     .input(
         z.object({
             cursor: z.object({
