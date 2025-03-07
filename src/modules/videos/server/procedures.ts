@@ -10,6 +10,73 @@ import { z } from "zod";
 
 // handles video crud operation / api
 export const videosRouter = createTRPCRouter({
+    getTrending: baseProcedure
+    .input(
+        z.object({
+            cursor: z.object({
+                id: z.string().uuid(),  // This is a unique identifier for pagination.
+                viewCount: z.number(),
+            })
+            .nullish(),  // This means the cursor is optional, allowing the first request to be made without it.
+            limit: z.number().min(1).max(100),  // This sets a limit on the number of videos returned, between 1 and 100.
+        }),
+    )
+    .query(async ({ input }) => {
+        const { cursor, limit } = input;
+
+        const viewCountSubquery = db.$count(
+            videoViews,
+            eq(videoViews.videoId, videos.id),
+        );
+
+        const data = await db
+            .select({
+                ...getTableColumns(videos),
+                user: users,
+                viewCount: viewCountSubquery,
+                likeCount: db.$count(videoReactions, and(
+                    eq(videoReactions.videoId, videos.id),
+                    eq(videoReactions.type, "like"),
+                )),
+                dislikeCount: db.$count(videoReactions, and(
+                    eq(videoReactions.videoId, videos.id),
+                    eq(videoReactions.type, "dislike"),
+                )),
+            })
+            .from(videos)
+            .innerJoin(users, eq(videos.userId, users.id))
+            .where(and(
+                eq(videos.visibility, "public"),
+                cursor
+                    ? or(
+                        lt(viewCountSubquery, cursor.viewCount),  // lt - larger than
+                        and(
+                            eq(viewCountSubquery, cursor.viewCount),
+                            lt(videos.id, cursor.id)
+                        )
+                    )
+                    : undefined,
+            ))
+            .orderBy(desc(viewCountSubquery), desc(videos.id))
+            .limit(limit + 1)  // Add 1 to check if there is more data
+
+            const hasMore = data.length > limit;
+            // Remove the last item if there is more data
+            const items = hasMore ? data.slice(0, -1) : data;
+            // set the next cursor to the last item if there is more data
+            const lastItem = items[items.length - 1];
+            const nextCursor = hasMore ? 
+                {
+                    id: lastItem.id,
+                    viewCount: lastItem.viewCount
+                } 
+                : null;
+
+        return {
+            items,
+            nextCursor
+        };
+    }),
     getMany: baseProcedure
     .input(
         z.object({
