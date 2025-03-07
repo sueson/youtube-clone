@@ -5,7 +5,7 @@ import { HistoryView } from "@/modules/playlists/ui/views/history-view";
 
 
 const Page = () => {
-    void trpc.playlists.getHistory.prefetchInfinite({ limit: DEFAULT_LIMIT });
+    void trpc.playlists.getLiked.prefetchInfinite({ limit: DEFAULT_LIMIT });
 
     return (
         <HydrateClient>
