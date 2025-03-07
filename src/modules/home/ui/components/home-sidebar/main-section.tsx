@@ -20,8 +20,8 @@ const items = [
     },
     // It only renders for authorized users
     {
-        title: "Subscriptions",
-        url: '/feed/subscriptions',
+        title: "Subscribed",
+        url: '/feed/subscribed',
         icon: PlaySquareIcon,
         auth: true
     },
