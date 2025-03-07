@@ -10,6 +10,84 @@ import { z } from "zod";
 
 // handles video crud operation / api
 export const videosRouter = createTRPCRouter({
+    // Only for logged user
+    getManySubscribed: protectedProcedure
+    .input(
+        z.object({
+            cursor: z.object({
+                id: z.string().uuid(),  // This is a unique identifier for pagination.
+                updatedAt: z.date()     // This is the date when the video was last updated.
+            })
+            .nullish(),  // This means the cursor is optional, allowing the first request to be made without it.
+            limit: z.number().min(1).max(100),  // This sets a limit on the number of videos returned, between 1 and 100.
+        }),
+    )
+    .query(async ({ ctx, input }) => {
+        const { id: userId } = ctx.user;
+
+        const { cursor, limit } = input;
+
+        const viewerSubscriptions = db.$with("viewer_subscriptions").as(
+            db
+                .select({
+                    userId: subscriptions.creatorId,
+                })
+                .from(subscriptions)
+                .where(eq(subscriptions.viewerId, userId)),
+        );
+
+        const data = await db
+            .select({
+                ...getTableColumns(videos),
+                user: users,
+                viewCount: db.$count(videoViews, eq(videoViews.videoId, videos.id)),
+                likeCount: db.$count(videoReactions, and(
+                    eq(videoReactions.videoId, videos.id),
+                    eq(videoReactions.type, "like"),
+                )),
+                dislikeCount: db.$count(videoReactions, and(
+                    eq(videoReactions.videoId, videos.id),
+                    eq(videoReactions.type, "dislike"),
+                )),
+            })
+            .from(videos)
+            .innerJoin(users, eq(videos.userId, users.id))
+            .innerJoin(
+                viewerSubscriptions,
+                eq(viewerSubscriptions.userId, users.id)
+            )
+            .where(and(
+                eq(videos.visibility, "public"),
+                cursor
+                    ? or(
+                        lt(videos.updatedAt, cursor.updatedAt),  // lt - larger than
+                        and(
+                            eq(videos.updatedAt, cursor.updatedAt),
+                            lt(videos.id, cursor.id)
+                        )
+                    )
+                    : undefined,
+            ))
+            .orderBy(desc(videos.updatedAt), desc(videos.id))
+            .limit(limit + 1)  // Add 1 to check if there is more data
+
+            const hasMore = data.length > limit;
+            // Remove the last item if there is more data
+            const items = hasMore ? data.slice(0, -1) : data;
+            // set the next cursor to the last item if there is more data
+            const lastItem = items[items.length - 1];
+            const nextCursor = hasMore ? 
+                {
+                    id: lastItem.id,
+                    updatedAt: lastItem.updatedAt
+                } 
+                : null;
+
+        return {
+            items,
+            nextCursor
+        };
+    }),
     getManyTrending: baseProcedure
     .input(
         z.object({
