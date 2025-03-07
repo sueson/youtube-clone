@@ -1,6 +1,6 @@
 import { trpc, HydrateClient } from "@/trpc/server";
 import { DEFAULT_LIMIT } from "@/constants";
-import { HistoryView } from "@/modules/playlists/ui/views/history-view";
+import { LikedView } from "@/modules/playlists/ui/views/liked-view";
 
 
 
@@ -9,7 +9,7 @@ const Page = () => {
 
     return (
         <HydrateClient>
-            <HistoryView />
+            <LikedView />
         </HydrateClient>
     )
 };
