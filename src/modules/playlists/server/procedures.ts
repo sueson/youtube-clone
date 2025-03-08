@@ -2,11 +2,81 @@ import { db } from "@/db";
 import { playlists, playlistVideos, users, videoReactions, videos, videoViews } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, getTableColumns, lt, or } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, lt, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 // handles video crud operation / api
 export const playlistsRouter = createTRPCRouter({
+    getManyForVideo: protectedProcedure
+    .input(
+        z.object({
+            videoId: z.string().uuid(),
+            cursor: z.object({
+                id: z.string().uuid(),  // This is a unique identifier for pagination.
+                updatedAt: z.date()     // This is the date when the video was last updated.
+            })
+            .nullish(),  // This means the cursor is optional, allowing the first request to be made without it.
+            limit: z.number().min(1).max(100),  // This sets a limit on the number of videos returned, between 1 and 100.
+        }),
+    )
+    .query(async ({ ctx, input }) => {
+        const { id: userId } = ctx.user;
+
+        const { cursor, limit, videoId } = input;
+
+        const data = await db
+            .select({
+                ...getTableColumns(playlists),
+                videoCount: db.$count(
+                    playlistVideos,
+                    eq(playlists.id, playlistVideos.playlistId),
+                ),
+                user: users,
+                containsVideo: videoId
+                // playlist_id name should match exactly like in schema 
+                    ? sql<boolean> `(
+                        SELECT EXISTS (
+                            SELECT 1
+                            FROM ${playlistVideos} pv
+                            WHERE pv.playlist_id = ${playlists.id} AND pv.video_id = ${videoId}
+                        )
+                    )`
+                    : sql<boolean> `false`,
+            })
+            .from(playlists)
+            .innerJoin(users, eq(playlists.userId, users.id))
+            .where(and(
+                eq(playlists.userId, userId),
+                cursor
+                    ? or(
+                        lt(playlists.updatedAt, cursor.updatedAt),  // lt - larger than
+                        and(
+                            eq(playlists.updatedAt, cursor.updatedAt),
+                            lt(playlists.id, cursor.id)
+                        )
+                    )
+                    : undefined,
+            ))
+            .orderBy(desc(playlists.updatedAt), desc(playlists.id))
+            .limit(limit + 1)  // Add 1 to check if there is more data
+
+            const hasMore = data.length > limit;
+            // Remove the last item if there is more data
+            const items = hasMore ? data.slice(0, -1) : data;
+            // set the next cursor to the last item if there is more data
+            const lastItem = items[items.length - 1];
+            const nextCursor = hasMore ? 
+                {
+                    id: lastItem.id,
+                    updatedAt: lastItem.updatedAt
+                } 
+                : null;
+
+        return {
+            items,
+            nextCursor
+        };
+    }),
     // To get all the videos to add in playlist by user preference
     getMany: protectedProcedure
     .input(
