@@ -3,6 +3,9 @@ import { PlaylistsView } from "@/modules/playlists/ui/views/playlists-view";
 import { HydrateClient, trpc } from "@/trpc/server";
 
 
+// Because this is a dynamic page not a static page
+export const dynamic = "force-dynamic";
+
 
 const Page = async () => {
     void trpc.playlists.getMany.prefetchInfinite({ limit: DEFAULT_LIMIT });

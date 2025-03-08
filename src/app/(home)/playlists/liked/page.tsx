@@ -3,6 +3,9 @@ import { DEFAULT_LIMIT } from "@/constants";
 import { LikedView } from "@/modules/playlists/ui/views/liked-view";
 
 
+// Because this is a dynamic page not a static page
+export const dynamic = "force-dynamic";
+
 
 const Page = () => {
     void trpc.playlists.getLiked.prefetchInfinite({ limit: DEFAULT_LIMIT });
