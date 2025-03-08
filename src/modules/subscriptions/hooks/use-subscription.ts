@@ -24,6 +24,7 @@ export const useSubscription = ({
             toast.success("Subscribed");
             utils.videos.getManySubscribed.invalidate();  // used to update without refresh
             utils.users.getOne.invalidate({ id: userId });
+            utils.subscriptions.getMany.invalidate();
 
             // refetch the no of subscribers
             if(fromVideoId) {
@@ -44,6 +45,7 @@ export const useSubscription = ({
             toast.success("unSubscribed");
             utils.videos.getManySubscribed.invalidate();  // used to update without refresh
             utils.users.getOne.invalidate({ id: userId });
+            utils.subscriptions.getMany.invalidate();
 
             // refetch the no of subscribers
             if(fromVideoId) {
