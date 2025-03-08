@@ -13,7 +13,7 @@ export const StudioNavbar = () => {
                 {/* Menu & Logo */}
                 <div className="flex items-center flex-shrink-0">
                     <SidebarTrigger />
-                    <Link href="/studio">
+                    <Link prefetch  href="/studio" className="hidden md:block">
                         <div className="p-4 flex items-center gap-1">
                             <Image 
                                 src="/logo.svg"
