@@ -23,6 +23,7 @@ export const useSubscription = ({
         onSuccess: () => {
             toast.success("Subscribed");
             utils.videos.getManySubscribed.invalidate();  // used to update without refresh
+            utils.users.getOne.invalidate({ id: userId });
 
             // refetch the no of subscribers
             if(fromVideoId) {
@@ -42,6 +43,7 @@ export const useSubscription = ({
         onSuccess: () => {
             toast.success("unSubscribed");
             utils.videos.getManySubscribed.invalidate();  // used to update without refresh
+            utils.users.getOne.invalidate({ id: userId });
 
             // refetch the no of subscribers
             if(fromVideoId) {
