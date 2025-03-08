@@ -81,7 +81,7 @@ const SuggestionsSectionSuspense = ({ videoId, isManual }: SuggestionsSectionPro
                 }
             </div>
             <InfiniteScroll 
-                isManual={isManual}
+                isManual={isManual}  // Load more
                 hasNextPage={query.hasNextPage}
                 isFetchingNextPage={query.isFetchingNextPage}
                 fetchNextPage={query.fetchNextPage}
